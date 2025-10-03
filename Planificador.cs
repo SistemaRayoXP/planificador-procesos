@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 namespace Planificador
 {
     public class Planificador
     {
         private readonly List<Proceso> procesos;
+        private const int MilisegundosPorMinutoPredeterminados = 1000;
 
         public Planificador(IEnumerable<Proceso> listaProcesos)
         {
@@ -41,7 +43,12 @@ namespace Planificador
         {
             Ejecutar();
 
-            return procesos.Select(proceso => new[]
+            return procesos.Select(FormatearResultadoProceso);
+        }
+
+        public string[] FormatearResultadoProceso(Proceso proceso)
+        {
+            return new[]
             {
                 proceso.Nombre,
                 FormatearTiempo(proceso.TiempoLlegada),
@@ -50,10 +57,45 @@ namespace Planificador
                 FormatearTiempo(proceso.TiempoFin),
                 FormatearTiempo(proceso.TiempoEspera),
                 FormatearTiempo(proceso.TiempoRetorno)
-            });
+            };
         }
 
-        private static string FormatearTiempo(int minutos)
+        public void SimularEjecucion(Action<Proceso>? alIniciar, Action<Proceso>? alFinalizar, int milisegundosPorMinuto = MilisegundosPorMinutoPredeterminados)
+        {
+            Ejecutar();
+
+            int tiempoActual = 0;
+
+            foreach (var proceso in procesos)
+            {
+                if (tiempoActual < proceso.TiempoLlegada)
+                {
+                    var espera = (proceso.TiempoLlegada - tiempoActual) * milisegundosPorMinuto;
+
+                    if (espera > 0)
+                    {
+                        Thread.Sleep(espera);
+                    }
+
+                    tiempoActual = proceso.TiempoLlegada;
+                }
+
+                alIniciar?.Invoke(proceso);
+
+                var duracion = proceso.Duracion * milisegundosPorMinuto;
+
+                if (duracion > 0)
+                {
+                    Thread.Sleep(duracion);
+                }
+
+                tiempoActual += proceso.Duracion;
+
+                alFinalizar?.Invoke(proceso);
+            }
+        }
+
+        public static string FormatearTiempo(int minutos)
         {
             var tiempo = TimeSpan.FromMinutes(minutos);
             return $"{(int)tiempo.TotalHours:00}:{tiempo.Minutes:00}";
