@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -5,34 +6,57 @@ namespace Planificador
 {
     public class Planificador
     {
-        private List<Proceso> procesos;
+        private readonly List<Proceso> procesos;
 
-        public Planificador(List<Proceso> listaProcesos)
+        public Planificador(IEnumerable<Proceso> listaProcesos)
         {
             procesos = listaProcesos
-                        .OrderBy(p => p.TiempoLlegada) // ordenar por llegada
-                        .ToList();
+                .OrderBy(p => p.TiempoLlegada)
+                .ToList();
         }
 
-        public List<Proceso> Ejecutar()
+        public IReadOnlyList<Proceso> Ejecutar()
         {
             int tiempoActual = 0;
 
-            foreach (var p in procesos)
+            foreach (var proceso in procesos)
             {
-                // Si el proceso llega después del tiempo actual, el CPU espera
-                if (tiempoActual < p.TiempoLlegada)
-                    tiempoActual = p.TiempoLlegada;
+                if (tiempoActual < proceso.TiempoLlegada)
+                {
+                    tiempoActual = proceso.TiempoLlegada;
+                }
 
-                p.TiempoInicio = tiempoActual;
-                p.TiempoFin = tiempoActual + p.Duracion;
-                p.TiempoEspera = p.TiempoInicio - p.TiempoLlegada;
-                p.TiempoRetorno = p.TiempoFin - p.TiempoLlegada;
+                proceso.TiempoInicio = tiempoActual;
+                proceso.TiempoFin = tiempoActual + proceso.Duracion;
+                proceso.TiempoEspera = proceso.TiempoInicio - proceso.TiempoLlegada;
+                proceso.TiempoRetorno = proceso.TiempoFin - proceso.TiempoLlegada;
 
-                tiempoActual = p.TiempoFin;
+                tiempoActual = proceso.TiempoFin;
             }
 
             return procesos;
+        }
+
+        public IEnumerable<string[]> ObtenerResultadosFormateados()
+        {
+            Ejecutar();
+
+            return procesos.Select(proceso => new[]
+            {
+                proceso.Nombre,
+                FormatearTiempo(proceso.TiempoLlegada),
+                FormatearTiempo(proceso.Duracion),
+                FormatearTiempo(proceso.TiempoInicio),
+                FormatearTiempo(proceso.TiempoFin),
+                FormatearTiempo(proceso.TiempoEspera),
+                FormatearTiempo(proceso.TiempoRetorno)
+            });
+        }
+
+        private static string FormatearTiempo(int minutos)
+        {
+            var tiempo = TimeSpan.FromMinutes(minutos);
+            return $"{(int)tiempo.TotalHours:00}:{tiempo.Minutes:00}";
         }
     }
 }
