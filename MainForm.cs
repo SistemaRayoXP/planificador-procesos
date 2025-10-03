@@ -19,9 +19,17 @@ namespace Planificador
 
             var procesos = new List<Proceso>
             {
-                new("Descarga 1", 0, 5),
-                new("Descarga 2", 3, 2),
-                new("Descarga 3", 5, 4)
+                new("WXPVOLSP3.iso", 0, 5),
+                new("Tu_tio_cuando_va_al_mar.mp4", 2, 3),
+                new("Shrek_2_LATINO_FINALFINAL.avi", 3, 7),
+                new("Tarea_matematicas_definitiva_v3.pdf", 4, 2),
+                new("Naruto_episodio_134_subs_raros.mkv", 5, 6),
+                new("Soundtrack_El_Chavo_en_8D.mp3", 6, 4),
+                new("VirusGratisNoEsVirus.rar", 7, 3),
+                new("FotoCarnet_con_bigote_editado.png", 8, 2),
+                new("Manual_QuantumComputing_para_principiantes.docx", 9, 5),
+                new("backup_celular_mi_ex_2015.zip", 10, 9),
+                new("Presentacion_Final_DE_VERDAD.pptx", 11, 4)
             };
             _planificador = new Planificador(procesos);
             _procesos = _planificador.Ejecutar();
