@@ -1,9 +1,12 @@
-﻿namespace Planificador
+namespace Planificador
 {
     partial class MainForm
     {
-      
+        /// <summary>
+        ///  Required designer variable.
+        /// </summary>
         private System.ComponentModel.IContainer components = null;
+
         /// <summary>
         ///  Clean up any resources being used.
         /// </summary>
@@ -14,107 +17,113 @@
             {
                 components.Dispose();
             }
+
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-       
+        /// <summary>
+        ///  Required method for Designer support - do not modify
+        ///  the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
-            ListViewItem listViewItem1 = new ListViewItem(new string[] { "Descarga 1", "00:00", "00:00", "00:00", "00:00", "00:00", "00:00" }, -1);
-            ListViewItem listViewItem2 = new ListViewItem(new string[] { "Descarga 2", "00:03", "00:03", "00:03", "00:03", "00:03", "00:03" }, -1);
-            ListViewItem listViewItem3 = new ListViewItem(new string[] { "Descarga 3", "00:05", "00:05", "00:05", "00:05", "00:05", "00:05" }, -1);
-            listView1 = new ListView();
-            processHeader = new ColumnHeader();
-            arrivalHeader = new ColumnHeader();
-            durationHeader = new ColumnHeader();
-            startTimeHeader = new ColumnHeader();
-            endTimeHeader = new ColumnHeader();
-            waitTimeHeader = new ColumnHeader();
-            returnTimeHeader = new ColumnHeader();
-            SuspendLayout();
+            this.procesosListView = new System.Windows.Forms.ListView();
+            this.processHeader = new System.Windows.Forms.ColumnHeader();
+            this.arrivalHeader = new System.Windows.Forms.ColumnHeader();
+            this.durationHeader = new System.Windows.Forms.ColumnHeader();
+            this.startTimeHeader = new System.Windows.Forms.ColumnHeader();
+            this.endTimeHeader = new System.Windows.Forms.ColumnHeader();
+            this.waitTimeHeader = new System.Windows.Forms.ColumnHeader();
+            this.returnTimeHeader = new System.Windows.Forms.ColumnHeader();
+            this.SuspendLayout();
             // 
-            // listView1
+            // procesosListView
             // 
-            listView1.BorderStyle = BorderStyle.FixedSingle;
-            listView1.CheckBoxes = true;
-            listView1.Columns.AddRange(new ColumnHeader[] { processHeader, arrivalHeader, durationHeader, startTimeHeader, endTimeHeader, waitTimeHeader, returnTimeHeader });
-            listView1.Dock = DockStyle.Fill;
-            listView1.FullRowSelect = true;
-            listView1.GridLines = true;
-            listView1.HeaderStyle = ColumnHeaderStyle.Nonclickable;
-            listViewItem1.Checked = true;
-            listViewItem1.StateImageIndex = 1;
-            listViewItem2.StateImageIndex = 0;
-            listViewItem3.StateImageIndex = 0;
-            listView1.Items.AddRange(new ListViewItem[] { listViewItem1, listViewItem2, listViewItem3 });
-            listView1.Location = new Point(0, 0);
-            listView1.Name = "listView1";
-            listView1.ShowGroups = false;
-            listView1.Size = new Size(800, 450);
-            listView1.TabIndex = 0;
-            listView1.UseCompatibleStateImageBehavior = false;
-            listView1.View = View.Details;
-            listView1.ItemCheck += listView1_ItemCheck;
+            this.procesosListView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.procesosListView.CheckBoxes = true;
+            this.procesosListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.processHeader,
+            this.arrivalHeader,
+            this.durationHeader,
+            this.startTimeHeader,
+            this.endTimeHeader,
+            this.waitTimeHeader,
+            this.returnTimeHeader});
+            this.procesosListView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.procesosListView.FullRowSelect = true;
+            this.procesosListView.GridLines = true;
+            this.procesosListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.procesosListView.Location = new System.Drawing.Point(0, 0);
+            this.procesosListView.MultiSelect = false;
+            this.procesosListView.Name = "procesosListView";
+            this.procesosListView.ShowGroups = false;
+            this.procesosListView.Size = new System.Drawing.Size(800, 450);
+            this.procesosListView.TabIndex = 0;
+            this.procesosListView.UseCompatibleStateImageBehavior = false;
+            this.procesosListView.View = System.Windows.Forms.View.Details;
             // 
             // processHeader
             // 
-            processHeader.Text = "Proceso";
-            processHeader.Width = 250;
+            this.processHeader.Text = "Proceso";
+            this.processHeader.Width = 220;
             // 
             // arrivalHeader
             // 
-            arrivalHeader.Text = "Tiempo de llegada";
-            arrivalHeader.Width = 140;
+            this.arrivalHeader.Text = "Llegada";
+            this.arrivalHeader.Width = 90;
             // 
             // durationHeader
             // 
-            durationHeader.Text = "Duración";
-            durationHeader.Width = 75;
+            this.durationHeader.Text = "Duración";
+            this.durationHeader.Width = 90;
             // 
             // startTimeHeader
             // 
-            startTimeHeader.Text = "Inicio";
+            this.startTimeHeader.Text = "Inicio";
+            this.startTimeHeader.Width = 90;
             // 
             // endTimeHeader
             // 
-            endTimeHeader.Text = "Fin";
+            this.endTimeHeader.Text = "Fin";
+            this.endTimeHeader.Width = 90;
             // 
             // waitTimeHeader
             // 
-            waitTimeHeader.Text = "Espera";
+            this.waitTimeHeader.Text = "Espera";
+            this.waitTimeHeader.Width = 90;
             // 
             // returnTimeHeader
             // 
-            returnTimeHeader.Text = "Tiempo de retorno";
-            returnTimeHeader.Width = 140;
+            this.returnTimeHeader.Text = "Retorno";
+            this.returnTimeHeader.Width = 90;
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(8F, 20F);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(listView1);
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            Name = "MainForm";
-            StartPosition = FormStartPosition.CenterScreen;
-            Text = "Planificador de procesos PEPSI";
-            Shown += MainForm_Shown;
-            ResumeLayout(false);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.procesosListView);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Planificador de procesos PEPSI";
+            this.Shown += new System.EventHandler(this.MainForm_Shown);
+            this.ResumeLayout(false);
         }
 
         #endregion
 
-        private ListView listView1;
-        private ColumnHeader processHeader;
-        private ColumnHeader arrivalHeader;
-        private ColumnHeader durationHeader;
-        private ColumnHeader startTimeHeader;
-        private ColumnHeader endTimeHeader;
-        private ColumnHeader waitTimeHeader;
-        private ColumnHeader returnTimeHeader;
+        private System.Windows.Forms.ListView procesosListView;
+        private System.Windows.Forms.ColumnHeader processHeader;
+        private System.Windows.Forms.ColumnHeader arrivalHeader;
+        private System.Windows.Forms.ColumnHeader durationHeader;
+        private System.Windows.Forms.ColumnHeader startTimeHeader;
+        private System.Windows.Forms.ColumnHeader endTimeHeader;
+        private System.Windows.Forms.ColumnHeader waitTimeHeader;
+        private System.Windows.Forms.ColumnHeader returnTimeHeader;
     }
 }

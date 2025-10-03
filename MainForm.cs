@@ -1,62 +1,48 @@
+using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Planificador
 {
     public partial class MainForm : Form
     {
-        bool initialized = false;
-        bool sentFromApplication = false;
+        private readonly Planificador _planificador;
 
         public MainForm()
         {
             InitializeComponent();
-        }
 
-        private void listView1_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            if (initialized && !sentFromApplication)
+            var procesos = new List<Proceso>
             {
-                e.NewValue = e.CurrentValue;
-                sentFromApplication = false;
-            }
+                new("Descarga 1", 0, 5),
+                new("Descarga 2", 3, 2),
+                new("Descarga 3", 5, 4)
+            };
+
+            _planificador = new Planificador(procesos);
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            initialized = true;
-            CargarProcesos();  // 👉 al mostrarse el form, carga los procesos
+            MostrarProcesos();
         }
 
-        private void CargarProcesos()
+        private void MostrarProcesos()
         {
-            // 🔹 Aquí defines tus procesos de ejemplo
-            var lista = new List<Proceso>
-            {
-                new Proceso("Descarga 1", 0, 5),
-                new Proceso("Descarga 2", 3, 2),
-                new Proceso("Descarga 3", 5, 4)
-            };
+            procesosListView.BeginUpdate();
+            procesosListView.Items.Clear();
 
-            // 🔹 Pasar la lista al planificador
-            var planificador = new Planificador(lista);
-            var resultado = planificador.Ejecutar();
-
-            // 🔹 Mostrar resultados en el ListView
-            listView1.Items.Clear();
-            foreach (var p in resultado)
+            foreach (var fila in _planificador.ObtenerResultadosFormateados())
             {
-                var item = new ListViewItem(new string[]
+                var item = new ListViewItem(fila)
                 {
-                    p.Nombre,
-                    p.TiempoLlegada.ToString(),
-                    p.Duracion.ToString(),
-                    p.TiempoInicio.ToString(),
-                    p.TiempoFin.ToString(),
-                    p.TiempoEspera.ToString(),
-                    p.TiempoRetorno.ToString()
-                });
-                listView1.Items.Add(item);
+                    Checked = true
+                };
+
+                procesosListView.Items.Add(item);
             }
+
+            procesosListView.EndUpdate();
         }
     }
 }
