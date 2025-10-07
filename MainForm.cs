@@ -12,6 +12,7 @@ namespace Planificador
         private readonly Dictionary<Proceso, ListViewItem> _itemsPorProceso = new();
         private Thread? _hiloSimulacion;
         private const int MilisegundosPorMinuto = 1000;
+        private const int Quantum = 3;
 
         public MainForm()
         {
@@ -31,13 +32,14 @@ namespace Planificador
                 new("backup_celular_mi_ex_2015.zip", 10, 9),
                 new("Presentacion_Final_DE_VERDAD.pptx", 11, 4)
             };
-            _planificador = new Planificador(procesos);
+            _planificador = new Planificador(procesos, Quantum);
             _procesos = _planificador.Ejecutar();
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
             MostrarProcesos();
+            MostrarEstadisticas();
             IniciarSimulacion();
         }
 
@@ -53,7 +55,7 @@ namespace Planificador
 
                 var item = new ListViewItem(fila)
                 {
-                    Checked = false,
+                    Checked = proceso.Estado == EstadoProceso.Terminado,
                     Tag = proceso
                 };
 
@@ -64,13 +66,38 @@ namespace Planificador
             procesosListView.EndUpdate();
         }
 
+        private void MostrarEstadisticas()
+        {
+            var estadisticasRespuesta = _planificador.CalcularEstadisticasRespuesta();
+            var estadisticasRetorno = _planificador.CalcularEstadisticasRetorno();
+
+            estadisticasListView.BeginUpdate();
+            estadisticasListView.Items.Clear();
+
+            estadisticasListView.Items.Add(CrearItemEstadistica("Tiempo de respuesta", estadisticasRespuesta));
+            estadisticasListView.Items.Add(CrearItemEstadistica("Tiempo de retorno", estadisticasRetorno));
+
+            estadisticasListView.EndUpdate();
+        }
+
+        private static ListViewItem CrearItemEstadistica(string descripcion, Planificador.Estadisticas estadisticas)
+        {
+            return new ListViewItem(new[]
+            {
+                descripcion,
+                Planificador.FormatearValorEstadistico(estadisticas.Minimo),
+                Planificador.FormatearValorEstadistico(estadisticas.Maximo),
+                Planificador.FormatearValorEstadistico(estadisticas.Promedio),
+                Planificador.FormatearValorEstadistico(estadisticas.DesviacionEstandar)
+            });
+        }
+
         private void IniciarSimulacion()
         {
             _hiloSimulacion = new Thread(() =>
             {
                 _planificador.SimularEjecucion(
-                    proceso => ActualizarEstadoProceso(proceso, false),
-                    proceso => ActualizarEstadoProceso(proceso, true),
+                    ActualizarEstadoProceso,
                     MilisegundosPorMinuto);
             })
             {
@@ -80,7 +107,7 @@ namespace Planificador
             _hiloSimulacion.Start();
         }
 
-        private void ActualizarEstadoProceso(Proceso proceso, bool completado)
+        private void ActualizarEstadoProceso(Proceso proceso, EstadoProceso estado)
         {
             if (IsDisposed)
             {
@@ -89,7 +116,7 @@ namespace Planificador
 
             if (InvokeRequired)
             {
-                BeginInvoke(new Action(() => ActualizarEstadoProceso(proceso, completado)));
+                BeginInvoke(new Action(() => ActualizarEstadoProceso(proceso, estado)));
                 return;
             }
 
@@ -98,15 +125,33 @@ namespace Planificador
                 return;
             }
 
-            item.Checked = completado;
+            item.Checked = estado == EstadoProceso.Terminado;
+            item.SubItems[8].Text = Planificador.FormatearEstado(estado);
 
-            if (completado)
+            switch (estado)
             {
-                item.SubItems[0].Text = proceso.Nombre;
+                case EstadoProceso.EnEjecucion:
+                    item.SubItems[0].Text = $"{proceso.Nombre} (En ejecución)";
+                    break;
+                case EstadoProceso.Listo:
+                    item.SubItems[0].Text = $"{proceso.Nombre} (Listo)";
+                    break;
+                case EstadoProceso.Bloqueado:
+                    item.SubItems[0].Text = $"{proceso.Nombre} (Bloqueado)";
+                    break;
+                default:
+                    item.SubItems[0].Text = proceso.Nombre;
+                    break;
             }
-            else
+
+            if (estado == EstadoProceso.Terminado)
             {
-                item.SubItems[0].Text = $"{proceso.Nombre} (En ejecución)";
+                item.SubItems[3].Text = Planificador.FormatearTiempo(proceso.TiempoInicio);
+                item.SubItems[4].Text = Planificador.FormatearTiempo(proceso.TiempoFin);
+                item.SubItems[5].Text = Planificador.FormatearTiempo(proceso.TiempoEspera);
+                item.SubItems[6].Text = Planificador.FormatearTiempo(proceso.TiempoRespuesta);
+                item.SubItems[7].Text = Planificador.FormatearTiempo(proceso.TiempoRetorno);
+                item.SubItems[0].Text = proceso.Nombre;
             }
         }
     }

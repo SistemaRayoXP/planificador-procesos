@@ -11,6 +11,9 @@ namespace Planificador
         public int TiempoFin { get; set; }
         public int TiempoEspera { get; set; }
         public int TiempoRetorno { get; set; }
+        public int TiempoRespuesta { get; set; }
+        public int TiempoRestante { get; set; }
+        public EstadoProceso Estado { get; set; } = EstadoProceso.Bloqueado;
 
         public Proceso(string nombre, int llegada, int duracion)
         {

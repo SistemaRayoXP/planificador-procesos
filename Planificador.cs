@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 
@@ -8,35 +9,152 @@ namespace Planificador
     public class Planificador
     {
         private readonly List<Proceso> procesos;
+        private readonly List<PasoSimulacion> pasos = new();
         private const int MilisegundosPorMinutoPredeterminados = 1000;
 
-        public Planificador(IEnumerable<Proceso> listaProcesos)
+        public Planificador(IEnumerable<Proceso> listaProcesos, int quantum = 3)
         {
+            if (listaProcesos is null)
+            {
+                throw new ArgumentNullException(nameof(listaProcesos));
+            }
+
+            if (quantum <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(quantum), "El quantum debe ser mayor que cero.");
+            }
+
             procesos = listaProcesos
                 .OrderBy(p => p.TiempoLlegada)
                 .ToList();
+            Quantum = quantum;
         }
+
+        public int Quantum { get; }
 
         public IReadOnlyList<Proceso> Ejecutar()
         {
-            int tiempoActual = 0;
+            PlanificarRoundRobin();
+            return procesos;
+        }
+
+        private void PlanificarRoundRobin()
+        {
+            pasos.Clear();
 
             foreach (var proceso in procesos)
             {
-                if (tiempoActual < proceso.TiempoLlegada)
-                {
-                    tiempoActual = proceso.TiempoLlegada;
-                }
-
-                proceso.TiempoInicio = tiempoActual;
-                proceso.TiempoFin = tiempoActual + proceso.Duracion;
-                proceso.TiempoEspera = proceso.TiempoInicio - proceso.TiempoLlegada;
-                proceso.TiempoRetorno = proceso.TiempoFin - proceso.TiempoLlegada;
-
-                tiempoActual = proceso.TiempoFin;
+                proceso.TiempoInicio = -1;
+                proceso.TiempoFin = 0;
+                proceso.TiempoEspera = 0;
+                proceso.TiempoRetorno = 0;
+                proceso.TiempoRespuesta = 0;
+                proceso.TiempoRestante = proceso.Duracion;
+                proceso.Estado = EstadoProceso.Bloqueado;
+                RegistrarPaso(proceso, EstadoProceso.Bloqueado);
             }
 
-            return procesos;
+            var colaListos = new Queue<Proceso>();
+            var procesosOrdenados = procesos
+                .OrderBy(p => p.TiempoLlegada)
+                .ToList();
+
+            var totalProcesos = procesosOrdenados.Count;
+            var indiceLlegadas = 0;
+            var tiempoActual = 0;
+
+            while (colaListos.Count > 0 || indiceLlegadas < totalProcesos)
+            {
+                while (indiceLlegadas < totalProcesos && procesosOrdenados[indiceLlegadas].TiempoLlegada <= tiempoActual)
+                {
+                    var llegado = procesosOrdenados[indiceLlegadas];
+
+                    if (llegado.TiempoRestante > 0)
+                    {
+                        RegistrarPaso(llegado, EstadoProceso.Listo);
+                        colaListos.Enqueue(llegado);
+                    }
+
+                    indiceLlegadas++;
+                }
+
+                if (colaListos.Count == 0)
+                {
+                    if (indiceLlegadas < totalProcesos)
+                    {
+                        var siguiente = procesosOrdenados[indiceLlegadas];
+
+                        if (siguiente.TiempoLlegada > tiempoActual)
+                        {
+                            var tiempoInactivo = siguiente.TiempoLlegada - tiempoActual;
+                            RegistrarPaso(null, EstadoProceso.Bloqueado, tiempoInactivo);
+                            tiempoActual = siguiente.TiempoLlegada;
+                        }
+
+                        continue;
+                    }
+
+                    break;
+                }
+
+                var actual = colaListos.Dequeue();
+
+                if (actual.TiempoInicio < 0)
+                {
+                    actual.TiempoInicio = tiempoActual;
+                    actual.TiempoRespuesta = tiempoActual - actual.TiempoLlegada;
+                }
+
+                var duracionEjecucion = Math.Min(Quantum, actual.TiempoRestante);
+                RegistrarPaso(actual, EstadoProceso.EnEjecucion, duracionEjecucion);
+
+                tiempoActual += duracionEjecucion;
+                actual.TiempoRestante -= duracionEjecucion;
+
+                while (indiceLlegadas < totalProcesos && procesosOrdenados[indiceLlegadas].TiempoLlegada <= tiempoActual)
+                {
+                    var llegado = procesosOrdenados[indiceLlegadas];
+
+                    if (llegado.TiempoRestante > 0)
+                    {
+                        RegistrarPaso(llegado, EstadoProceso.Listo);
+                        colaListos.Enqueue(llegado);
+                    }
+
+                    indiceLlegadas++;
+                }
+
+                if (actual.TiempoRestante > 0)
+                {
+                    RegistrarPaso(actual, EstadoProceso.Listo);
+                    colaListos.Enqueue(actual);
+                }
+                else
+                {
+                    actual.TiempoFin = tiempoActual;
+                    actual.TiempoRetorno = actual.TiempoFin - actual.TiempoLlegada;
+                    actual.TiempoEspera = actual.TiempoRetorno - actual.Duracion;
+                    RegistrarPaso(actual, EstadoProceso.Terminado);
+                }
+            }
+
+            foreach (var proceso in procesos)
+            {
+                if (proceso.TiempoInicio < 0)
+                {
+                    proceso.TiempoInicio = proceso.TiempoLlegada;
+                }
+            }
+        }
+
+        private void RegistrarPaso(Proceso? proceso, EstadoProceso estado, int duracion = 0)
+        {
+            if (proceso is not null)
+            {
+                proceso.Estado = estado;
+            }
+
+            pasos.Add(new PasoSimulacion(proceso, estado, duracion));
         }
 
         public IEnumerable<string[]> ObtenerResultadosFormateados()
@@ -56,49 +174,90 @@ namespace Planificador
                 FormatearTiempo(proceso.TiempoInicio),
                 FormatearTiempo(proceso.TiempoFin),
                 FormatearTiempo(proceso.TiempoEspera),
-                FormatearTiempo(proceso.TiempoRetorno)
+                FormatearTiempo(proceso.TiempoRespuesta),
+                FormatearTiempo(proceso.TiempoRetorno),
+                FormatearEstado(proceso.Estado)
             };
         }
 
-        public void SimularEjecucion(Action<Proceso>? alIniciar, Action<Proceso>? alFinalizar, int milisegundosPorMinuto = MilisegundosPorMinutoPredeterminados)
+        public void SimularEjecucion(Action<Proceso, EstadoProceso>? notificarEstado, int milisegundosPorMinuto = MilisegundosPorMinutoPredeterminados)
         {
-            Ejecutar();
+            PlanificarRoundRobin();
 
-            int tiempoActual = 0;
-
-            foreach (var proceso in procesos)
+            foreach (var paso in pasos)
             {
-                if (tiempoActual < proceso.TiempoLlegada)
+                if (paso.Proceso is not null)
                 {
-                    var espera = (proceso.TiempoLlegada - tiempoActual) * milisegundosPorMinuto;
-
-                    if (espera > 0)
-                    {
-                        Thread.Sleep(espera);
-                    }
-
-                    tiempoActual = proceso.TiempoLlegada;
+                    notificarEstado?.Invoke(paso.Proceso, paso.Estado);
                 }
 
-                alIniciar?.Invoke(proceso);
-
-                var duracion = proceso.Duracion * milisegundosPorMinuto;
-
-                if (duracion > 0)
+                if (paso.Duracion > 0 && milisegundosPorMinuto > 0)
                 {
-                    Thread.Sleep(duracion);
+                    Thread.Sleep(paso.Duracion * milisegundosPorMinuto);
                 }
-
-                tiempoActual += proceso.Duracion;
-
-                alFinalizar?.Invoke(proceso);
             }
+        }
+
+        public Estadisticas CalcularEstadisticasRespuesta()
+        {
+            PlanificarRoundRobin();
+            return CalcularEstadisticas(procesos.Select(p => p.TiempoRespuesta));
+        }
+
+        public Estadisticas CalcularEstadisticasRetorno()
+        {
+            PlanificarRoundRobin();
+            return CalcularEstadisticas(procesos.Select(p => p.TiempoRetorno));
+        }
+
+        private static Estadisticas CalcularEstadisticas(IEnumerable<int> datos)
+        {
+            var lista = datos.ToList();
+
+            if (lista.Count == 0)
+            {
+                return new Estadisticas(0, 0, 0, 0);
+            }
+
+            var minimo = lista.Min();
+            var maximo = lista.Max();
+            var promedio = lista.Average();
+            var sumaCuadrados = lista.Sum(valor => Math.Pow(valor - promedio, 2));
+            var desviacion = Math.Sqrt(sumaCuadrados / lista.Count);
+
+            return new Estadisticas(minimo, maximo, promedio, desviacion);
         }
 
         public static string FormatearTiempo(int minutos)
         {
+            if (minutos < 0)
+            {
+                return "--";
+            }
+
             var tiempo = TimeSpan.FromMinutes(minutos);
             return $"{(int)tiempo.TotalHours:00}:{tiempo.Minutes:00}";
         }
+
+        public static string FormatearEstado(EstadoProceso estado)
+        {
+            return estado switch
+            {
+                EstadoProceso.Bloqueado => "Bloqueado",
+                EstadoProceso.Listo => "Listo",
+                EstadoProceso.EnEjecucion => "En ejecución",
+                EstadoProceso.Terminado => "Terminado",
+                _ => estado.ToString() ?? string.Empty
+            };
+        }
+
+        public static string FormatearValorEstadistico(double minutos)
+        {
+            return minutos.ToString("0.00", CultureInfo.InvariantCulture);
+        }
+
+        public record Estadisticas(double Minimo, double Maximo, double Promedio, double DesviacionEstandar);
+
+        private sealed record PasoSimulacion(Proceso? Proceso, EstadoProceso Estado, int Duracion);
     }
 }
