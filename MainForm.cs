@@ -12,7 +12,6 @@ namespace Planificador
         private readonly Dictionary<Proceso, ListViewItem> _itemsPorProceso = new();
         private Thread? _hiloSimulacion;
         private const int MilisegundosPorMinuto = 1000;
-        private const int Quantum = 3;
 
         public MainForm()
         {
@@ -32,7 +31,7 @@ namespace Planificador
                 new("backup_celular_mi_ex_2015.zip", 10, 9),
                 new("Presentacion_Final_DE_VERDAD.pptx", 11, 4)
             };
-            _planificador = new Planificador(procesos, Quantum);
+            _planificador = new Planificador(procesos);
             _procesos = _planificador.Ejecutar();
         }
 
