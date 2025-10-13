@@ -12,33 +12,25 @@ namespace Planificador
         private readonly List<PasoSimulacion> pasos = new();
         private const int MilisegundosPorMinutoPredeterminados = 1000;
 
-        public Planificador(IEnumerable<Proceso> listaProcesos, int quantum = 3)
+        public Planificador(IEnumerable<Proceso> listaProcesos)
         {
             if (listaProcesos is null)
             {
                 throw new ArgumentNullException(nameof(listaProcesos));
             }
 
-            if (quantum <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(quantum), "El quantum debe ser mayor que cero.");
-            }
-
             procesos = listaProcesos
                 .OrderBy(p => p.TiempoLlegada)
                 .ToList();
-            Quantum = quantum;
         }
-
-        public int Quantum { get; }
 
         public IReadOnlyList<Proceso> Ejecutar()
         {
-            PlanificarRoundRobin();
+            PlanificarShortestRemainingTime();
             return procesos;
         }
 
-        private void PlanificarRoundRobin()
+        private void PlanificarShortestRemainingTime()
         {
             pasos.Clear();
 
@@ -54,7 +46,7 @@ namespace Planificador
                 RegistrarPaso(proceso, EstadoProceso.Bloqueado);
             }
 
-            var colaListos = new Queue<Proceso>();
+            var colaListos = new PriorityQueue<Proceso, (int TiempoRestante, int TiempoLlegada, int Secuencia)>();
             var procesosOrdenados = procesos
                 .OrderBy(p => p.TiempoLlegada)
                 .ToList();
@@ -62,6 +54,7 @@ namespace Planificador
             var totalProcesos = procesosOrdenados.Count;
             var indiceLlegadas = 0;
             var tiempoActual = 0;
+            var contadorSecuencia = 0;
 
             while (colaListos.Count > 0 || indiceLlegadas < totalProcesos)
             {
@@ -72,7 +65,7 @@ namespace Planificador
                     if (llegado.TiempoRestante > 0)
                     {
                         RegistrarPaso(llegado, EstadoProceso.Listo);
-                        colaListos.Enqueue(llegado);
+                        colaListos.Enqueue(llegado, (llegado.TiempoRestante, llegado.TiempoLlegada, contadorSecuencia++));
                     }
 
                     indiceLlegadas++;
@@ -105,7 +98,17 @@ namespace Planificador
                     actual.TiempoRespuesta = tiempoActual - actual.TiempoLlegada;
                 }
 
-                var duracionEjecucion = Math.Min(Quantum, actual.TiempoRestante);
+                var tiempoProximaLlegada = indiceLlegadas < totalProcesos
+                    ? procesosOrdenados[indiceLlegadas].TiempoLlegada
+                    : int.MaxValue;
+                var tiempoHastaProximaLlegada = tiempoProximaLlegada - tiempoActual;
+                var duracionEjecucion = actual.TiempoRestante;
+
+                if (tiempoHastaProximaLlegada > 0)
+                {
+                    duracionEjecucion = Math.Min(duracionEjecucion, tiempoHastaProximaLlegada);
+                }
+
                 RegistrarPaso(actual, EstadoProceso.EnEjecucion, duracionEjecucion);
 
                 tiempoActual += duracionEjecucion;
@@ -118,7 +121,7 @@ namespace Planificador
                     if (llegado.TiempoRestante > 0)
                     {
                         RegistrarPaso(llegado, EstadoProceso.Listo);
-                        colaListos.Enqueue(llegado);
+                        colaListos.Enqueue(llegado, (llegado.TiempoRestante, llegado.TiempoLlegada, contadorSecuencia++));
                     }
 
                     indiceLlegadas++;
@@ -127,7 +130,7 @@ namespace Planificador
                 if (actual.TiempoRestante > 0)
                 {
                     RegistrarPaso(actual, EstadoProceso.Listo);
-                    colaListos.Enqueue(actual);
+                    colaListos.Enqueue(actual, (actual.TiempoRestante, actual.TiempoLlegada, contadorSecuencia++));
                 }
                 else
                 {
@@ -182,7 +185,7 @@ namespace Planificador
 
         public void SimularEjecucion(Action<Proceso, EstadoProceso>? notificarEstado, int milisegundosPorMinuto = MilisegundosPorMinutoPredeterminados)
         {
-            PlanificarRoundRobin();
+            PlanificarShortestRemainingTime();
 
             foreach (var paso in pasos)
             {
@@ -200,13 +203,13 @@ namespace Planificador
 
         public Estadisticas CalcularEstadisticasRespuesta()
         {
-            PlanificarRoundRobin();
+            PlanificarShortestRemainingTime();
             return CalcularEstadisticas(procesos.Select(p => p.TiempoRespuesta));
         }
 
         public Estadisticas CalcularEstadisticasRetorno()
         {
-            PlanificarRoundRobin();
+            PlanificarShortestRemainingTime();
             return CalcularEstadisticas(procesos.Select(p => p.TiempoRetorno));
         }
 
