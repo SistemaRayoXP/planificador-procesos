@@ -14,12 +14,14 @@ namespace Planificador
         public int TiempoRespuesta { get; set; }
         public int TiempoRestante { get; set; }
         public EstadoProceso Estado { get; set; } = EstadoProceso.Bloqueado;
+        public TipoCola TipoCola { get; set; }
 
-        public Proceso(string nombre, int llegada, int duracion)
+        public Proceso(string nombre, int llegada, int duracion, TipoCola tipoCola)
         {
             Nombre = nombre;
             TiempoLlegada = llegada;
             Duracion = duracion;
+            TipoCola = tipoCola;
         }
     }
 }
