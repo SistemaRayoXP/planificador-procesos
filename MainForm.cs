@@ -10,12 +10,20 @@ namespace Planificador
         private readonly Planificador _planificador;
         private readonly IReadOnlyList<Proceso> _procesos;
         private readonly Dictionary<Proceso, ListViewItem> _itemsPorProceso = new();
+        private readonly Dictionary<TipoCola, ListView> _listasPorCola;
         private Thread? _hiloSimulacion;
         private const int MilisegundosPorMinuto = 1000;
 
         public MainForm()
         {
             InitializeComponent();
+
+            _listasPorCola = new Dictionary<TipoCola, ListView>
+            {
+                { TipoCola.Fcfs, procesosFCFS },
+                { TipoCola.RoundRobin, procesosRR },
+                { TipoCola.Srt, procesosSRT }
+            };
 
             var procesos = new List<Proceso>
             {
@@ -45,8 +53,12 @@ namespace Planificador
 
         private void MostrarProcesos()
         {
-            procesosFCFS.BeginUpdate();
-            procesosFCFS.Items.Clear();
+            foreach (var lista in _listasPorCola.Values)
+            {
+                lista.BeginUpdate();
+                lista.Items.Clear();
+            }
+
             _itemsPorProceso.Clear();
 
             foreach (var proceso in _procesos)
@@ -59,11 +71,15 @@ namespace Planificador
                     Tag = proceso
                 };
 
-                procesosFCFS.Items.Add(item);
+                var lista = _listasPorCola[proceso.TipoCola];
+                lista.Items.Add(item);
                 _itemsPorProceso[proceso] = item;
             }
 
-            procesosFCFS.EndUpdate();
+            foreach (var lista in _listasPorCola.Values)
+            {
+                lista.EndUpdate();
+            }
         }
 
         private void MostrarEstadisticas()
