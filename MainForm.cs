@@ -19,17 +19,18 @@ namespace Planificador
 
             var procesos = new List<Proceso>
             {
-                new("WXPVOLSP3.iso", 0, 5),
-                new("Tu_tio_cuando_va_al_mar.mp4", 2, 3),
-                new("Shrek_2_LATINO_FINALFINAL.avi", 3, 7),
-                new("Tarea_matematicas_definitiva_v3.pdf", 4, 2),
-                new("Naruto_episodio_134_subs_raros.mkv", 5, 6),
-                new("Soundtrack_El_Chavo_en_8D.mp3", 6, 4),
-                new("VirusGratisNoEsVirus.rar", 7, 3),
-                new("FotoCarnet_con_bigote_editado.png", 8, 2),
-                new("Manual_QuantumComputing_para_principiantes.docx", 9, 5),
-                new("backup_celular_mi_ex_2015.zip", 10, 9),
-                new("Presentacion_Final_DE_VERDAD.pptx", 11, 4)
+                new("Compilador_legacy.exe", 0, 5, TipoCola.Fcfs),
+                new("Analisis_financiero_2024.xlsx", 3, 4, TipoCola.Fcfs),
+                new("Manual_admin_red_v5.pdf", 6, 2, TipoCola.Fcfs),
+                new("Reporte_operaciones_final.docx", 9, 3, TipoCola.Fcfs),
+                new("Respaldo_photos_marzo.zip", 1, 6, TipoCola.RoundRobin),
+                new("Script_monitoreo.ps1", 4, 5, TipoCola.RoundRobin),
+                new("Contenedor_pruebas.tar", 7, 4, TipoCola.RoundRobin),
+                new("Cliente_chat_microservicio.log", 10, 3, TipoCola.RoundRobin),
+                new("Motor_inferencia_v2.bin", 2, 8, TipoCola.Srt),
+                new("Dataset_sensores.csv", 5, 6, TipoCola.Srt),
+                new("Worker_eventos.service", 6, 3, TipoCola.Srt),
+                new("Hotfix_seguridad.patch", 8, 2, TipoCola.Srt)
             };
             _planificador = new Planificador(procesos);
             _procesos = _planificador.Ejecutar();
@@ -125,7 +126,7 @@ namespace Planificador
             }
 
             item.Checked = estado == EstadoProceso.Terminado;
-            item.SubItems[8].Text = Planificador.FormatearEstado(estado);
+            item.SubItems[9].Text = Planificador.FormatearEstado(estado);
 
             switch (estado)
             {
@@ -145,11 +146,11 @@ namespace Planificador
 
             if (estado == EstadoProceso.Terminado)
             {
-                item.SubItems[3].Text = Planificador.FormatearTiempo(proceso.TiempoInicio);
-                item.SubItems[4].Text = Planificador.FormatearTiempo(proceso.TiempoFin);
-                item.SubItems[5].Text = Planificador.FormatearTiempo(proceso.TiempoEspera);
-                item.SubItems[6].Text = Planificador.FormatearTiempo(proceso.TiempoRespuesta);
-                item.SubItems[7].Text = Planificador.FormatearTiempo(proceso.TiempoRetorno);
+                item.SubItems[4].Text = Planificador.FormatearTiempo(proceso.TiempoInicio);
+                item.SubItems[5].Text = Planificador.FormatearTiempo(proceso.TiempoFin);
+                item.SubItems[6].Text = Planificador.FormatearTiempo(proceso.TiempoEspera);
+                item.SubItems[7].Text = Planificador.FormatearTiempo(proceso.TiempoRespuesta);
+                item.SubItems[8].Text = Planificador.FormatearTiempo(proceso.TiempoRetorno);
                 item.SubItems[0].Text = proceso.Nombre;
             }
         }

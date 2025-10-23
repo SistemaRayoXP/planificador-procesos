@@ -9,8 +9,9 @@ namespace Planificador
     public class Planificador
     {
         private readonly List<Proceso> procesos;
-        private readonly List<PasoSimulacion> pasos = new();
+        private readonly Dictionary<TipoCola, List<PasoSimulacion>> pasosPorCola = new();
         private const int MilisegundosPorMinutoPredeterminados = 1000;
+        private const int QuantumRoundRobin = 2;
 
         public Planificador(IEnumerable<Proceso> listaProcesos)
         {
@@ -26,13 +27,18 @@ namespace Planificador
 
         public IReadOnlyList<Proceso> Ejecutar()
         {
-            PlanificarShortestRemainingTime();
+            PlanificarMultiNivel();
             return procesos;
         }
 
-        private void PlanificarShortestRemainingTime()
+        private void PlanificarMultiNivel()
         {
-            pasos.Clear();
+            pasosPorCola.Clear();
+
+            foreach (var tipo in Enum.GetValues<TipoCola>())
+            {
+                pasosPorCola[tipo] = new List<PasoSimulacion>();
+            }
 
             foreach (var proceso in procesos)
             {
@@ -43,28 +49,156 @@ namespace Planificador
                 proceso.TiempoRespuesta = 0;
                 proceso.TiempoRestante = proceso.Duracion;
                 proceso.Estado = EstadoProceso.Bloqueado;
-                RegistrarPaso(proceso, EstadoProceso.Bloqueado);
+                RegistrarPaso(proceso.TipoCola, proceso, EstadoProceso.Bloqueado);
             }
 
-            var colaListos = new PriorityQueue<Proceso, (int TiempoRestante, int TiempoLlegada, int Secuencia)>();
-            var procesosOrdenados = procesos
+            PlanificarFirstComeFirstServed(procesos.Where(p => p.TipoCola == TipoCola.Fcfs));
+            PlanificarRoundRobin(procesos.Where(p => p.TipoCola == TipoCola.RoundRobin));
+            PlanificarShortestRemainingTime(procesos.Where(p => p.TipoCola == TipoCola.Srt));
+        }
+
+        private void PlanificarFirstComeFirstServed(IEnumerable<Proceso> procesosFcfs)
+        {
+            var lista = procesosFcfs
                 .OrderBy(p => p.TiempoLlegada)
                 .ToList();
 
-            var totalProcesos = procesosOrdenados.Count;
+            if (lista.Count == 0)
+            {
+                return;
+            }
+
+            var tiempoActual = lista.Min(p => p.TiempoLlegada);
+
+            foreach (var proceso in lista)
+            {
+                if (tiempoActual < proceso.TiempoLlegada)
+                {
+                    var tiempoInactivo = proceso.TiempoLlegada - tiempoActual;
+                    RegistrarPaso(TipoCola.Fcfs, null, EstadoProceso.Bloqueado, tiempoInactivo);
+                    tiempoActual = proceso.TiempoLlegada;
+                }
+
+                RegistrarPaso(TipoCola.Fcfs, proceso, EstadoProceso.Listo);
+
+                proceso.TiempoInicio = tiempoActual;
+                proceso.TiempoRespuesta = tiempoActual - proceso.TiempoLlegada;
+                proceso.TiempoEspera = tiempoActual - proceso.TiempoLlegada;
+
+                RegistrarPaso(TipoCola.Fcfs, proceso, EstadoProceso.EnEjecucion, proceso.Duracion);
+
+                tiempoActual += proceso.Duracion;
+                proceso.TiempoFin = tiempoActual;
+                proceso.TiempoRetorno = proceso.TiempoFin - proceso.TiempoLlegada;
+                proceso.TiempoRestante = 0;
+
+                RegistrarPaso(TipoCola.Fcfs, proceso, EstadoProceso.Terminado);
+            }
+        }
+
+        private void PlanificarRoundRobin(IEnumerable<Proceso> procesosRoundRobin)
+        {
+            var lista = procesosRoundRobin
+                .OrderBy(p => p.TiempoLlegada)
+                .ToList();
+
+            if (lista.Count == 0)
+            {
+                return;
+            }
+
+            var colaListos = new Queue<Proceso>();
+            var tiempoActual = lista.Min(p => p.TiempoLlegada);
             var indiceLlegadas = 0;
-            var tiempoActual = 0;
+
+            while (colaListos.Count > 0 || indiceLlegadas < lista.Count)
+            {
+                while (indiceLlegadas < lista.Count && lista[indiceLlegadas].TiempoLlegada <= tiempoActual)
+                {
+                    var llegado = lista[indiceLlegadas++];
+                    RegistrarPaso(TipoCola.RoundRobin, llegado, EstadoProceso.Listo);
+                    colaListos.Enqueue(llegado);
+                }
+
+                if (colaListos.Count == 0)
+                {
+                    if (indiceLlegadas < lista.Count)
+                    {
+                        var siguiente = lista[indiceLlegadas];
+                        if (siguiente.TiempoLlegada > tiempoActual)
+                        {
+                            var tiempoInactivo = siguiente.TiempoLlegada - tiempoActual;
+                            RegistrarPaso(TipoCola.RoundRobin, null, EstadoProceso.Bloqueado, tiempoInactivo);
+                            tiempoActual = siguiente.TiempoLlegada;
+                        }
+                    }
+
+                    continue;
+                }
+
+                var actual = colaListos.Dequeue();
+
+                if (actual.TiempoInicio < 0)
+                {
+                    actual.TiempoInicio = tiempoActual;
+                    actual.TiempoRespuesta = tiempoActual - actual.TiempoLlegada;
+                }
+
+                var duracionEjecucion = Math.Min(actual.TiempoRestante, QuantumRoundRobin);
+                RegistrarPaso(TipoCola.RoundRobin, actual, EstadoProceso.EnEjecucion, duracionEjecucion);
+
+                tiempoActual += duracionEjecucion;
+                actual.TiempoRestante -= duracionEjecucion;
+
+                while (indiceLlegadas < lista.Count && lista[indiceLlegadas].TiempoLlegada <= tiempoActual)
+                {
+                    var llegado = lista[indiceLlegadas++];
+                    RegistrarPaso(TipoCola.RoundRobin, llegado, EstadoProceso.Listo);
+                    colaListos.Enqueue(llegado);
+                }
+
+                if (actual.TiempoRestante > 0)
+                {
+                    RegistrarPaso(TipoCola.RoundRobin, actual, EstadoProceso.Listo);
+                    colaListos.Enqueue(actual);
+                }
+                else
+                {
+                    actual.TiempoFin = tiempoActual;
+                    actual.TiempoRetorno = actual.TiempoFin - actual.TiempoLlegada;
+                    actual.TiempoEspera = actual.TiempoRetorno - actual.Duracion;
+                    actual.TiempoRestante = 0;
+                    RegistrarPaso(TipoCola.RoundRobin, actual, EstadoProceso.Terminado);
+                }
+            }
+        }
+
+        private void PlanificarShortestRemainingTime(IEnumerable<Proceso> procesosSrt)
+        {
+            var lista = procesosSrt
+                .OrderBy(p => p.TiempoLlegada)
+                .ToList();
+
+            if (lista.Count == 0)
+            {
+                return;
+            }
+
+            var colaListos = new PriorityQueue<Proceso, (int TiempoRestante, int TiempoLlegada, int Secuencia)>();
+            var totalProcesos = lista.Count;
+            var indiceLlegadas = 0;
+            var tiempoActual = lista.Min(p => p.TiempoLlegada);
             var contadorSecuencia = 0;
 
             while (colaListos.Count > 0 || indiceLlegadas < totalProcesos)
             {
-                while (indiceLlegadas < totalProcesos && procesosOrdenados[indiceLlegadas].TiempoLlegada <= tiempoActual)
+                while (indiceLlegadas < totalProcesos && lista[indiceLlegadas].TiempoLlegada <= tiempoActual)
                 {
-                    var llegado = procesosOrdenados[indiceLlegadas];
+                    var llegado = lista[indiceLlegadas];
 
                     if (llegado.TiempoRestante > 0)
                     {
-                        RegistrarPaso(llegado, EstadoProceso.Listo);
+                        RegistrarPaso(TipoCola.Srt, llegado, EstadoProceso.Listo);
                         colaListos.Enqueue(llegado, (llegado.TiempoRestante, llegado.TiempoLlegada, contadorSecuencia++));
                     }
 
@@ -75,12 +209,12 @@ namespace Planificador
                 {
                     if (indiceLlegadas < totalProcesos)
                     {
-                        var siguiente = procesosOrdenados[indiceLlegadas];
+                        var siguiente = lista[indiceLlegadas];
 
                         if (siguiente.TiempoLlegada > tiempoActual)
                         {
                             var tiempoInactivo = siguiente.TiempoLlegada - tiempoActual;
-                            RegistrarPaso(null, EstadoProceso.Bloqueado, tiempoInactivo);
+                            RegistrarPaso(TipoCola.Srt, null, EstadoProceso.Bloqueado, tiempoInactivo);
                             tiempoActual = siguiente.TiempoLlegada;
                         }
 
@@ -99,7 +233,7 @@ namespace Planificador
                 }
 
                 var tiempoProximaLlegada = indiceLlegadas < totalProcesos
-                    ? procesosOrdenados[indiceLlegadas].TiempoLlegada
+                    ? lista[indiceLlegadas].TiempoLlegada
                     : int.MaxValue;
                 var tiempoHastaProximaLlegada = tiempoProximaLlegada - tiempoActual;
                 var duracionEjecucion = actual.TiempoRestante;
@@ -109,18 +243,18 @@ namespace Planificador
                     duracionEjecucion = Math.Min(duracionEjecucion, tiempoHastaProximaLlegada);
                 }
 
-                RegistrarPaso(actual, EstadoProceso.EnEjecucion, duracionEjecucion);
+                RegistrarPaso(TipoCola.Srt, actual, EstadoProceso.EnEjecucion, duracionEjecucion);
 
                 tiempoActual += duracionEjecucion;
                 actual.TiempoRestante -= duracionEjecucion;
 
-                while (indiceLlegadas < totalProcesos && procesosOrdenados[indiceLlegadas].TiempoLlegada <= tiempoActual)
+                while (indiceLlegadas < totalProcesos && lista[indiceLlegadas].TiempoLlegada <= tiempoActual)
                 {
-                    var llegado = procesosOrdenados[indiceLlegadas];
+                    var llegado = lista[indiceLlegadas];
 
                     if (llegado.TiempoRestante > 0)
                     {
-                        RegistrarPaso(llegado, EstadoProceso.Listo);
+                        RegistrarPaso(TipoCola.Srt, llegado, EstadoProceso.Listo);
                         colaListos.Enqueue(llegado, (llegado.TiempoRestante, llegado.TiempoLlegada, contadorSecuencia++));
                     }
 
@@ -129,7 +263,7 @@ namespace Planificador
 
                 if (actual.TiempoRestante > 0)
                 {
-                    RegistrarPaso(actual, EstadoProceso.Listo);
+                    RegistrarPaso(TipoCola.Srt, actual, EstadoProceso.Listo);
                     colaListos.Enqueue(actual, (actual.TiempoRestante, actual.TiempoLlegada, contadorSecuencia++));
                 }
                 else
@@ -137,11 +271,12 @@ namespace Planificador
                     actual.TiempoFin = tiempoActual;
                     actual.TiempoRetorno = actual.TiempoFin - actual.TiempoLlegada;
                     actual.TiempoEspera = actual.TiempoRetorno - actual.Duracion;
-                    RegistrarPaso(actual, EstadoProceso.Terminado);
+                    actual.TiempoRestante = 0;
+                    RegistrarPaso(TipoCola.Srt, actual, EstadoProceso.Terminado);
                 }
             }
 
-            foreach (var proceso in procesos)
+            foreach (var proceso in lista)
             {
                 if (proceso.TiempoInicio < 0)
                 {
@@ -150,14 +285,20 @@ namespace Planificador
             }
         }
 
-        private void RegistrarPaso(Proceso? proceso, EstadoProceso estado, int duracion = 0)
+        private void RegistrarPaso(TipoCola tipoCola, Proceso? proceso, EstadoProceso estado, int duracion = 0)
         {
             if (proceso is not null)
             {
                 proceso.Estado = estado;
             }
 
-            pasos.Add(new PasoSimulacion(proceso, estado, duracion));
+            if (!pasosPorCola.TryGetValue(tipoCola, out var listaPasos))
+            {
+                listaPasos = new List<PasoSimulacion>();
+                pasosPorCola[tipoCola] = listaPasos;
+            }
+
+            listaPasos.Add(new PasoSimulacion(proceso, estado, duracion));
         }
 
         public IEnumerable<string[]> ObtenerResultadosFormateados()
@@ -172,6 +313,7 @@ namespace Planificador
             return new[]
             {
                 proceso.Nombre,
+                FormatearTipoCola(proceso.TipoCola),
                 FormatearTiempo(proceso.TiempoLlegada),
                 FormatearTiempo(proceso.Duracion),
                 FormatearTiempo(proceso.TiempoInicio),
@@ -185,31 +327,56 @@ namespace Planificador
 
         public void SimularEjecucion(Action<Proceso, EstadoProceso>? notificarEstado, int milisegundosPorMinuto = MilisegundosPorMinutoPredeterminados)
         {
-            PlanificarShortestRemainingTime();
+            PlanificarMultiNivel();
 
-            foreach (var paso in pasos)
+            var hilos = new List<Thread>();
+
+            foreach (var (tipo, pasos) in pasosPorCola)
             {
-                if (paso.Proceso is not null)
+                if (pasos.Count == 0)
                 {
-                    notificarEstado?.Invoke(paso.Proceso, paso.Estado);
+                    continue;
                 }
 
-                if (paso.Duracion > 0 && milisegundosPorMinuto > 0)
+                var hilo = new Thread(() =>
                 {
-                    Thread.Sleep(paso.Duracion * milisegundosPorMinuto);
-                }
+                    foreach (var paso in pasos)
+                    {
+                        if (paso.Proceso is not null)
+                        {
+                            notificarEstado?.Invoke(paso.Proceso, paso.Estado);
+                        }
+
+                        if (paso.Duracion > 0 && milisegundosPorMinuto > 0)
+                        {
+                            Thread.Sleep(paso.Duracion * milisegundosPorMinuto);
+                        }
+                    }
+                })
+                {
+                    IsBackground = true,
+                    Name = $"Simulacion_{tipo}"
+                };
+
+                hilos.Add(hilo);
+                hilo.Start();
+            }
+
+            foreach (var hilo in hilos)
+            {
+                hilo.Join();
             }
         }
 
         public Estadisticas CalcularEstadisticasRespuesta()
         {
-            PlanificarShortestRemainingTime();
+            PlanificarMultiNivel();
             return CalcularEstadisticas(procesos.Select(p => p.TiempoRespuesta));
         }
 
         public Estadisticas CalcularEstadisticasRetorno()
         {
-            PlanificarShortestRemainingTime();
+            PlanificarMultiNivel();
             return CalcularEstadisticas(procesos.Select(p => p.TiempoRetorno));
         }
 
@@ -257,6 +424,17 @@ namespace Planificador
         public static string FormatearValorEstadistico(double minutos)
         {
             return minutos.ToString("0.00", CultureInfo.InvariantCulture);
+        }
+
+        public static string FormatearTipoCola(TipoCola tipoCola)
+        {
+            return tipoCola switch
+            {
+                TipoCola.Fcfs => "FCFS",
+                TipoCola.RoundRobin => "Round Robin",
+                TipoCola.Srt => "SRT",
+                _ => tipoCola.ToString() ?? string.Empty
+            };
         }
 
         public record Estadisticas(double Minimo, double Maximo, double Promedio, double DesviacionEstandar);

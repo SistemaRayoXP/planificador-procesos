@@ -31,6 +31,7 @@ namespace Planificador
         {
             this.procesosListView = new System.Windows.Forms.ListView();
             this.processHeader = new System.Windows.Forms.ColumnHeader();
+            this.queueHeader = new System.Windows.Forms.ColumnHeader();
             this.arrivalHeader = new System.Windows.Forms.ColumnHeader();
             this.durationHeader = new System.Windows.Forms.ColumnHeader();
             this.startTimeHeader = new System.Windows.Forms.ColumnHeader();
@@ -55,6 +56,7 @@ namespace Planificador
             this.procesosListView.CheckBoxes = true;
             this.procesosListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.processHeader,
+            this.queueHeader,
             this.arrivalHeader,
             this.durationHeader,
             this.startTimeHeader,
@@ -81,8 +83,13 @@ namespace Planificador
             this.processHeader.Text = "Proceso";
             this.processHeader.Width = 220;
             // 
+            // queueHeader
+            //
+            this.queueHeader.Text = "Cola";
+            this.queueHeader.Width = 120;
+            //
             // arrivalHeader
-            // 
+            //
             this.arrivalHeader.Text = "Llegada";
             this.arrivalHeader.Width = 90;
             // 
@@ -205,6 +212,7 @@ namespace Planificador
         private System.Windows.Forms.TableLayoutPanel mainLayout;
         private System.Windows.Forms.ListView procesosListView;
         private System.Windows.Forms.ColumnHeader processHeader;
+        private System.Windows.Forms.ColumnHeader queueHeader;
         private System.Windows.Forms.ColumnHeader arrivalHeader;
         private System.Windows.Forms.ColumnHeader durationHeader;
         private System.Windows.Forms.ColumnHeader startTimeHeader;
