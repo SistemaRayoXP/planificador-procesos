@@ -45,8 +45,8 @@ namespace Planificador
 
         private void MostrarProcesos()
         {
-            procesosListView.BeginUpdate();
-            procesosListView.Items.Clear();
+            procesosFCFS.BeginUpdate();
+            procesosFCFS.Items.Clear();
             _itemsPorProceso.Clear();
 
             foreach (var proceso in _procesos)
@@ -59,11 +59,11 @@ namespace Planificador
                     Tag = proceso
                 };
 
-                procesosListView.Items.Add(item);
+                procesosFCFS.Items.Add(item);
                 _itemsPorProceso[proceso] = item;
             }
 
-            procesosListView.EndUpdate();
+            procesosFCFS.EndUpdate();
         }
 
         private void MostrarEstadisticas()
@@ -153,6 +153,16 @@ namespace Planificador
                 item.SubItems[8].Text = Planificador.FormatearTiempo(proceso.TiempoRetorno);
                 item.SubItems[0].Text = proceso.Nombre;
             }
+        }
+
+        private void salirToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void acercaDeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Planificador de procesos de Cola Multi Nivel (CoMuNi)", "Planificador CoMuNi", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

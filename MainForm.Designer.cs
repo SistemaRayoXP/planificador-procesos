@@ -29,188 +29,460 @@ namespace Planificador
         /// </summary>
         private void InitializeComponent()
         {
-            this.procesosListView = new System.Windows.Forms.ListView();
-            this.processHeader = new System.Windows.Forms.ColumnHeader();
-            this.queueHeader = new System.Windows.Forms.ColumnHeader();
-            this.arrivalHeader = new System.Windows.Forms.ColumnHeader();
-            this.durationHeader = new System.Windows.Forms.ColumnHeader();
-            this.startTimeHeader = new System.Windows.Forms.ColumnHeader();
-            this.endTimeHeader = new System.Windows.Forms.ColumnHeader();
-            this.waitTimeHeader = new System.Windows.Forms.ColumnHeader();
-            this.responseTimeHeader = new System.Windows.Forms.ColumnHeader();
-            this.returnTimeHeader = new System.Windows.Forms.ColumnHeader();
-            this.stateHeader = new System.Windows.Forms.ColumnHeader();
-            this.estadisticasListView = new System.Windows.Forms.ListView();
-            this.metricHeader = new System.Windows.Forms.ColumnHeader();
-            this.minHeader = new System.Windows.Forms.ColumnHeader();
-            this.maxHeader = new System.Windows.Forms.ColumnHeader();
-            this.avgHeader = new System.Windows.Forms.ColumnHeader();
-            this.stdDevHeader = new System.Windows.Forms.ColumnHeader();
-            this.mainLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.mainLayout.SuspendLayout();
-            this.SuspendLayout();
+            procesosFCFS = new ListView();
+            processHeader = new ColumnHeader();
+            queueHeader = new ColumnHeader();
+            arrivalHeader = new ColumnHeader();
+            durationHeader = new ColumnHeader();
+            startTimeHeader = new ColumnHeader();
+            endTimeHeader = new ColumnHeader();
+            waitTimeHeader = new ColumnHeader();
+            responseTimeHeader = new ColumnHeader();
+            returnTimeHeader = new ColumnHeader();
+            stateHeader = new ColumnHeader();
+            estadisticasListView = new ListView();
+            metricHeader = new ColumnHeader();
+            minHeader = new ColumnHeader();
+            maxHeader = new ColumnHeader();
+            avgHeader = new ColumnHeader();
+            stdDevHeader = new ColumnHeader();
+            procesosRR = new ListView();
+            columnHeader1 = new ColumnHeader();
+            columnHeader2 = new ColumnHeader();
+            columnHeader3 = new ColumnHeader();
+            columnHeader4 = new ColumnHeader();
+            columnHeader5 = new ColumnHeader();
+            columnHeader6 = new ColumnHeader();
+            columnHeader7 = new ColumnHeader();
+            columnHeader8 = new ColumnHeader();
+            columnHeader9 = new ColumnHeader();
+            columnHeader10 = new ColumnHeader();
+            tableLayoutPanel1 = new TableLayoutPanel();
+            tableLayoutPanel2 = new TableLayoutPanel();
+            procesosSRT = new ListView();
+            columnHeader11 = new ColumnHeader();
+            columnHeader12 = new ColumnHeader();
+            columnHeader13 = new ColumnHeader();
+            columnHeader14 = new ColumnHeader();
+            columnHeader15 = new ColumnHeader();
+            columnHeader16 = new ColumnHeader();
+            columnHeader17 = new ColumnHeader();
+            columnHeader18 = new ColumnHeader();
+            columnHeader19 = new ColumnHeader();
+            columnHeader20 = new ColumnHeader();
+            tableLayoutPanel3 = new TableLayoutPanel();
+            lbl_fcfs = new Label();
+            lbl_rr = new Label();
+            lbl_srt = new Label();
+            menuStrip1 = new MenuStrip();
+            archivoToolStripMenuItem = new ToolStripMenuItem();
+            salirToolStripMenuItem = new ToolStripMenuItem();
+            ayudaToolStripMenuItem = new ToolStripMenuItem();
+            acercaDeToolStripMenuItem = new ToolStripMenuItem();
+            tableLayoutPanel1.SuspendLayout();
+            tableLayoutPanel2.SuspendLayout();
+            tableLayoutPanel3.SuspendLayout();
+            menuStrip1.SuspendLayout();
+            SuspendLayout();
             // 
-            // procesosListView
+            // procesosFCFS
             // 
-            this.procesosListView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.procesosListView.CheckBoxes = true;
-            this.procesosListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.processHeader,
-            this.queueHeader,
-            this.arrivalHeader,
-            this.durationHeader,
-            this.startTimeHeader,
-            this.endTimeHeader,
-            this.waitTimeHeader,
-            this.responseTimeHeader,
-            this.returnTimeHeader,
-            this.stateHeader});
-            this.procesosListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.procesosListView.FullRowSelect = true;
-            this.procesosListView.GridLines = true;
-            this.procesosListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.procesosListView.Location = new System.Drawing.Point(3, 3);
-            this.procesosListView.MultiSelect = false;
-            this.procesosListView.Name = "procesosListView";
-            this.procesosListView.ShowGroups = false;
-            this.procesosListView.Size = new System.Drawing.Size(794, 285);
-            this.procesosListView.TabIndex = 0;
-            this.procesosListView.UseCompatibleStateImageBehavior = false;
-            this.procesosListView.View = System.Windows.Forms.View.Details;
+            procesosFCFS.BorderStyle = BorderStyle.FixedSingle;
+            procesosFCFS.CheckBoxes = true;
+            procesosFCFS.Columns.AddRange(new ColumnHeader[] { processHeader, queueHeader, arrivalHeader, durationHeader, startTimeHeader, endTimeHeader, waitTimeHeader, responseTimeHeader, returnTimeHeader, stateHeader });
+            procesosFCFS.Dock = DockStyle.Fill;
+            procesosFCFS.FullRowSelect = true;
+            procesosFCFS.GridLines = true;
+            procesosFCFS.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            procesosFCFS.Location = new Point(3, 2);
+            procesosFCFS.Margin = new Padding(3, 2, 3, 2);
+            procesosFCFS.MultiSelect = false;
+            procesosFCFS.Name = "procesosFCFS";
+            procesosFCFS.ShowGroups = false;
+            procesosFCFS.Size = new Size(243, 131);
+            procesosFCFS.TabIndex = 0;
+            procesosFCFS.UseCompatibleStateImageBehavior = false;
+            procesosFCFS.View = View.Details;
             // 
             // processHeader
             // 
-            this.processHeader.Text = "Proceso";
-            this.processHeader.Width = 220;
+            processHeader.Text = "Proceso";
+            processHeader.Width = 220;
             // 
             // queueHeader
-            //
-            this.queueHeader.Text = "Cola";
-            this.queueHeader.Width = 120;
-            //
+            // 
+            queueHeader.Text = "Cola";
+            queueHeader.Width = 120;
+            // 
             // arrivalHeader
-            //
-            this.arrivalHeader.Text = "Llegada";
-            this.arrivalHeader.Width = 90;
+            // 
+            arrivalHeader.Text = "Llegada";
+            arrivalHeader.Width = 90;
             // 
             // durationHeader
             // 
-            this.durationHeader.Text = "Duración";
-            this.durationHeader.Width = 90;
+            durationHeader.Text = "Duración";
+            durationHeader.Width = 90;
             // 
             // startTimeHeader
             // 
-            this.startTimeHeader.Text = "Inicio";
-            this.startTimeHeader.Width = 90;
+            startTimeHeader.Text = "Inicio";
+            startTimeHeader.Width = 90;
             // 
             // endTimeHeader
             // 
-            this.endTimeHeader.Text = "Fin";
-            this.endTimeHeader.Width = 90;
+            endTimeHeader.Text = "Fin";
+            endTimeHeader.Width = 90;
             // 
             // waitTimeHeader
             // 
-            this.waitTimeHeader.Text = "Espera";
-            this.waitTimeHeader.Width = 90;
-            //
+            waitTimeHeader.Text = "Espera";
+            waitTimeHeader.Width = 90;
+            // 
             // responseTimeHeader
-            //
-            this.responseTimeHeader.Text = "Respuesta";
-            this.responseTimeHeader.Width = 100;
-            //
+            // 
+            responseTimeHeader.Text = "Respuesta";
+            responseTimeHeader.Width = 100;
+            // 
             // returnTimeHeader
-            //
-            this.returnTimeHeader.Text = "Retorno";
-            this.returnTimeHeader.Width = 90;
-            //
+            // 
+            returnTimeHeader.Text = "Retorno";
+            returnTimeHeader.Width = 90;
+            // 
             // stateHeader
-            //
-            this.stateHeader.Text = "Estado";
-            this.stateHeader.Width = 120;
-            //
+            // 
+            stateHeader.Text = "Estado";
+            stateHeader.Width = 120;
+            // 
             // estadisticasListView
-            //
-            this.estadisticasListView.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.estadisticasListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.metricHeader,
-            this.minHeader,
-            this.maxHeader,
-            this.avgHeader,
-            this.stdDevHeader});
-            this.estadisticasListView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.estadisticasListView.FullRowSelect = true;
-            this.estadisticasListView.GridLines = true;
-            this.estadisticasListView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.estadisticasListView.Location = new System.Drawing.Point(3, 294);
-            this.estadisticasListView.MultiSelect = false;
-            this.estadisticasListView.Name = "estadisticasListView";
-            this.estadisticasListView.ShowGroups = false;
-            this.estadisticasListView.Size = new System.Drawing.Size(794, 153);
-            this.estadisticasListView.TabIndex = 1;
-            this.estadisticasListView.UseCompatibleStateImageBehavior = false;
-            this.estadisticasListView.View = System.Windows.Forms.View.Details;
-            //
+            // 
+            estadisticasListView.BorderStyle = BorderStyle.FixedSingle;
+            estadisticasListView.Columns.AddRange(new ColumnHeader[] { metricHeader, minHeader, maxHeader, avgHeader, stdDevHeader });
+            estadisticasListView.Dock = DockStyle.Fill;
+            estadisticasListView.FullRowSelect = true;
+            estadisticasListView.GridLines = true;
+            estadisticasListView.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            estadisticasListView.Location = new Point(3, 183);
+            estadisticasListView.Margin = new Padding(3, 2, 3, 2);
+            estadisticasListView.MultiSelect = false;
+            estadisticasListView.Name = "estadisticasListView";
+            estadisticasListView.ShowGroups = false;
+            estadisticasListView.Size = new Size(749, 138);
+            estadisticasListView.TabIndex = 1;
+            estadisticasListView.UseCompatibleStateImageBehavior = false;
+            estadisticasListView.View = View.Details;
+            // 
             // metricHeader
-            //
-            this.metricHeader.Text = "Métrica";
-            this.metricHeader.Width = 180;
-            //
+            // 
+            metricHeader.Text = "Métrica";
+            metricHeader.Width = 180;
+            // 
             // minHeader
-            //
-            this.minHeader.Text = "Mínimo (min)";
-            this.minHeader.Width = 130;
-            //
+            // 
+            minHeader.Text = "Mínimo (min)";
+            minHeader.Width = 130;
+            // 
             // maxHeader
-            //
-            this.maxHeader.Text = "Máximo (min)";
-            this.maxHeader.Width = 130;
-            //
+            // 
+            maxHeader.Text = "Máximo (min)";
+            maxHeader.Width = 130;
+            // 
             // avgHeader
-            //
-            this.avgHeader.Text = "Promedio (min)";
-            this.avgHeader.Width = 150;
-            //
+            // 
+            avgHeader.Text = "Promedio (min)";
+            avgHeader.Width = 150;
+            // 
             // stdDevHeader
-            //
-            this.stdDevHeader.Text = "Desv. estándar (min)";
-            this.stdDevHeader.Width = 180;
-            //
-            // mainLayout
-            //
-            this.mainLayout.ColumnCount = 1;
-            this.mainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.mainLayout.Controls.Add(this.procesosListView, 0, 0);
-            this.mainLayout.Controls.Add(this.estadisticasListView, 0, 1);
-            this.mainLayout.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.mainLayout.Location = new System.Drawing.Point(0, 0);
-            this.mainLayout.Name = "mainLayout";
-            this.mainLayout.RowCount = 2;
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 65F));
-            this.mainLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 35F));
-            this.mainLayout.Size = new System.Drawing.Size(800, 450);
-            this.mainLayout.TabIndex = 1;
+            // 
+            stdDevHeader.Text = "Desv. estándar (min)";
+            stdDevHeader.Width = 180;
+            // 
+            // procesosRR
+            // 
+            procesosRR.BorderStyle = BorderStyle.FixedSingle;
+            procesosRR.CheckBoxes = true;
+            procesosRR.Columns.AddRange(new ColumnHeader[] { columnHeader1, columnHeader2, columnHeader3, columnHeader4, columnHeader5, columnHeader6, columnHeader7, columnHeader8, columnHeader9, columnHeader10 });
+            procesosRR.Dock = DockStyle.Fill;
+            procesosRR.FullRowSelect = true;
+            procesosRR.GridLines = true;
+            procesosRR.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            procesosRR.Location = new Point(252, 2);
+            procesosRR.Margin = new Padding(3, 2, 3, 2);
+            procesosRR.MultiSelect = false;
+            procesosRR.Name = "procesosRR";
+            procesosRR.ShowGroups = false;
+            procesosRR.Size = new Size(243, 131);
+            procesosRR.TabIndex = 2;
+            procesosRR.UseCompatibleStateImageBehavior = false;
+            procesosRR.View = View.Details;
+            // 
+            // columnHeader1
+            // 
+            columnHeader1.Text = "Proceso";
+            columnHeader1.Width = 220;
+            // 
+            // columnHeader2
+            // 
+            columnHeader2.Text = "Cola";
+            columnHeader2.Width = 120;
+            // 
+            // columnHeader3
+            // 
+            columnHeader3.Text = "Llegada";
+            columnHeader3.Width = 90;
+            // 
+            // columnHeader4
+            // 
+            columnHeader4.Text = "Duración";
+            columnHeader4.Width = 90;
+            // 
+            // columnHeader5
+            // 
+            columnHeader5.Text = "Inicio";
+            columnHeader5.Width = 90;
+            // 
+            // columnHeader6
+            // 
+            columnHeader6.Text = "Fin";
+            columnHeader6.Width = 90;
+            // 
+            // columnHeader7
+            // 
+            columnHeader7.Text = "Espera";
+            columnHeader7.Width = 90;
+            // 
+            // columnHeader8
+            // 
+            columnHeader8.Text = "Respuesta";
+            columnHeader8.Width = 100;
+            // 
+            // columnHeader9
+            // 
+            columnHeader9.Text = "Retorno";
+            columnHeader9.Width = 90;
+            // 
+            // columnHeader10
+            // 
+            columnHeader10.Text = "Estado";
+            columnHeader10.Width = 120;
+            // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.ColumnCount = 1;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Controls.Add(estadisticasListView, 0, 2);
+            tableLayoutPanel1.Controls.Add(tableLayoutPanel2, 0, 1);
+            tableLayoutPanel1.Controls.Add(tableLayoutPanel3, 0, 0);
+            tableLayoutPanel1.Dock = DockStyle.Fill;
+            tableLayoutPanel1.Location = new Point(0, 24);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 3;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Absolute, 40F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 50F));
+            tableLayoutPanel1.Size = new Size(755, 323);
+            tableLayoutPanel1.TabIndex = 3;
+            // 
+            // tableLayoutPanel2
+            // 
+            tableLayoutPanel2.ColumnCount = 3;
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel2.Controls.Add(procesosSRT, 2, 0);
+            tableLayoutPanel2.Controls.Add(procesosRR, 1, 0);
+            tableLayoutPanel2.Controls.Add(procesosFCFS, 0, 0);
+            tableLayoutPanel2.Dock = DockStyle.Fill;
+            tableLayoutPanel2.Location = new Point(3, 43);
+            tableLayoutPanel2.Name = "tableLayoutPanel2";
+            tableLayoutPanel2.RowCount = 1;
+            tableLayoutPanel2.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel2.Size = new Size(749, 135);
+            tableLayoutPanel2.TabIndex = 2;
+            // 
+            // procesosSRT
+            // 
+            procesosSRT.BorderStyle = BorderStyle.FixedSingle;
+            procesosSRT.CheckBoxes = true;
+            procesosSRT.Columns.AddRange(new ColumnHeader[] { columnHeader11, columnHeader12, columnHeader13, columnHeader14, columnHeader15, columnHeader16, columnHeader17, columnHeader18, columnHeader19, columnHeader20 });
+            procesosSRT.Dock = DockStyle.Fill;
+            procesosSRT.FullRowSelect = true;
+            procesosSRT.GridLines = true;
+            procesosSRT.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            procesosSRT.Location = new Point(501, 2);
+            procesosSRT.Margin = new Padding(3, 2, 3, 2);
+            procesosSRT.MultiSelect = false;
+            procesosSRT.Name = "procesosSRT";
+            procesosSRT.ShowGroups = false;
+            procesosSRT.Size = new Size(245, 131);
+            procesosSRT.TabIndex = 3;
+            procesosSRT.UseCompatibleStateImageBehavior = false;
+            procesosSRT.View = View.Details;
+            // 
+            // columnHeader11
+            // 
+            columnHeader11.Text = "Proceso";
+            columnHeader11.Width = 220;
+            // 
+            // columnHeader12
+            // 
+            columnHeader12.Text = "Cola";
+            columnHeader12.Width = 120;
+            // 
+            // columnHeader13
+            // 
+            columnHeader13.Text = "Llegada";
+            columnHeader13.Width = 90;
+            // 
+            // columnHeader14
+            // 
+            columnHeader14.Text = "Duración";
+            columnHeader14.Width = 90;
+            // 
+            // columnHeader15
+            // 
+            columnHeader15.Text = "Inicio";
+            columnHeader15.Width = 90;
+            // 
+            // columnHeader16
+            // 
+            columnHeader16.Text = "Fin";
+            columnHeader16.Width = 90;
+            // 
+            // columnHeader17
+            // 
+            columnHeader17.Text = "Espera";
+            columnHeader17.Width = 90;
+            // 
+            // columnHeader18
+            // 
+            columnHeader18.Text = "Respuesta";
+            columnHeader18.Width = 100;
+            // 
+            // columnHeader19
+            // 
+            columnHeader19.Text = "Retorno";
+            columnHeader19.Width = 90;
+            // 
+            // columnHeader20
+            // 
+            columnHeader20.Text = "Estado";
+            columnHeader20.Width = 120;
+            // 
+            // tableLayoutPanel3
+            // 
+            tableLayoutPanel3.ColumnCount = 3;
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel3.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.3333321F));
+            tableLayoutPanel3.Controls.Add(lbl_fcfs, 0, 0);
+            tableLayoutPanel3.Controls.Add(lbl_rr, 1, 0);
+            tableLayoutPanel3.Controls.Add(lbl_srt, 2, 0);
+            tableLayoutPanel3.Dock = DockStyle.Fill;
+            tableLayoutPanel3.Location = new Point(3, 3);
+            tableLayoutPanel3.Name = "tableLayoutPanel3";
+            tableLayoutPanel3.RowCount = 1;
+            tableLayoutPanel3.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel3.Size = new Size(749, 34);
+            tableLayoutPanel3.TabIndex = 3;
+            // 
+            // lbl_fcfs
+            // 
+            lbl_fcfs.AutoSize = true;
+            lbl_fcfs.Dock = DockStyle.Fill;
+            lbl_fcfs.Location = new Point(3, 0);
+            lbl_fcfs.Name = "lbl_fcfs";
+            lbl_fcfs.Size = new Size(243, 34);
+            lbl_fcfs.TabIndex = 0;
+            lbl_fcfs.Text = "PEPSI";
+            lbl_fcfs.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // lbl_rr
+            // 
+            lbl_rr.AutoSize = true;
+            lbl_rr.Dock = DockStyle.Fill;
+            lbl_rr.Location = new Point(252, 0);
+            lbl_rr.Name = "lbl_rr";
+            lbl_rr.Size = new Size(243, 34);
+            lbl_rr.TabIndex = 1;
+            lbl_rr.Text = "Ronda Redonda";
+            lbl_rr.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // lbl_srt
+            // 
+            lbl_srt.AutoSize = true;
+            lbl_srt.Dock = DockStyle.Fill;
+            lbl_srt.Location = new Point(501, 0);
+            lbl_srt.Name = "lbl_srt";
+            lbl_srt.Size = new Size(245, 34);
+            lbl_srt.TabIndex = 2;
+            lbl_srt.Text = "MeTRo";
+            lbl_srt.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // menuStrip1
+            // 
+            menuStrip1.BackgroundImageLayout = ImageLayout.None;
+            menuStrip1.Items.AddRange(new ToolStripItem[] { archivoToolStripMenuItem, ayudaToolStripMenuItem });
+            menuStrip1.Location = new Point(0, 0);
+            menuStrip1.Name = "menuStrip1";
+            menuStrip1.RenderMode = ToolStripRenderMode.System;
+            menuStrip1.Size = new Size(755, 24);
+            menuStrip1.TabIndex = 4;
+            menuStrip1.Text = "menuBar";
+            // 
+            // archivoToolStripMenuItem
+            // 
+            archivoToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { salirToolStripMenuItem });
+            archivoToolStripMenuItem.Name = "archivoToolStripMenuItem";
+            archivoToolStripMenuItem.Size = new Size(60, 20);
+            archivoToolStripMenuItem.Text = "Archivo";
+            // 
+            // salirToolStripMenuItem
+            // 
+            salirToolStripMenuItem.Name = "salirToolStripMenuItem";
+            salirToolStripMenuItem.Size = new Size(180, 22);
+            salirToolStripMenuItem.Text = "Salir";
+            salirToolStripMenuItem.Click += salirToolStripMenuItem_Click;
+            // 
+            // ayudaToolStripMenuItem
+            // 
+            ayudaToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { acercaDeToolStripMenuItem });
+            ayudaToolStripMenuItem.Name = "ayudaToolStripMenuItem";
+            ayudaToolStripMenuItem.Size = new Size(53, 20);
+            ayudaToolStripMenuItem.Text = "Ayuda";
+            // 
+            // acercaDeToolStripMenuItem
+            // 
+            acercaDeToolStripMenuItem.Name = "acercaDeToolStripMenuItem";
+            acercaDeToolStripMenuItem.Size = new Size(180, 22);
+            acercaDeToolStripMenuItem.Text = "Acerca de";
+            acercaDeToolStripMenuItem.Click += acercaDeToolStripMenuItem_Click;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.mainLayout);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "MainForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Planificador de procesos PEPSI";
-            this.Shown += new System.EventHandler(this.MainForm_Shown);
-            this.mainLayout.ResumeLayout(false);
-            this.ResumeLayout(false);
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(755, 347);
+            Controls.Add(tableLayoutPanel1);
+            Controls.Add(menuStrip1);
+            MainMenuStrip = menuStrip1;
+            Margin = new Padding(3, 2, 3, 2);
+            Name = "MainForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Planificador de procesos CoMuNi";
+            Shown += MainForm_Shown;
+            tableLayoutPanel1.ResumeLayout(false);
+            tableLayoutPanel2.ResumeLayout(false);
+            tableLayoutPanel3.ResumeLayout(false);
+            tableLayoutPanel3.PerformLayout();
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
-
-        private System.Windows.Forms.TableLayoutPanel mainLayout;
-        private System.Windows.Forms.ListView procesosListView;
+        private System.Windows.Forms.ListView procesosFCFS;
         private System.Windows.Forms.ColumnHeader processHeader;
         private System.Windows.Forms.ColumnHeader queueHeader;
         private System.Windows.Forms.ColumnHeader arrivalHeader;
@@ -227,5 +499,38 @@ namespace Planificador
         private System.Windows.Forms.ColumnHeader maxHeader;
         private System.Windows.Forms.ColumnHeader avgHeader;
         private System.Windows.Forms.ColumnHeader stdDevHeader;
+        private ListView procesosRR;
+        private ColumnHeader columnHeader1;
+        private ColumnHeader columnHeader2;
+        private ColumnHeader columnHeader3;
+        private ColumnHeader columnHeader4;
+        private ColumnHeader columnHeader5;
+        private ColumnHeader columnHeader6;
+        private ColumnHeader columnHeader7;
+        private ColumnHeader columnHeader8;
+        private ColumnHeader columnHeader9;
+        private ColumnHeader columnHeader10;
+        private TableLayoutPanel tableLayoutPanel1;
+        private TableLayoutPanel tableLayoutPanel2;
+        private ListView procesosSRT;
+        private ColumnHeader columnHeader11;
+        private ColumnHeader columnHeader12;
+        private ColumnHeader columnHeader13;
+        private ColumnHeader columnHeader14;
+        private ColumnHeader columnHeader15;
+        private ColumnHeader columnHeader16;
+        private ColumnHeader columnHeader17;
+        private ColumnHeader columnHeader18;
+        private ColumnHeader columnHeader19;
+        private ColumnHeader columnHeader20;
+        private TableLayoutPanel tableLayoutPanel3;
+        private Label lbl_fcfs;
+        private Label lbl_rr;
+        private Label lbl_srt;
+        private MenuStrip menuStrip1;
+        private ToolStripMenuItem archivoToolStripMenuItem;
+        private ToolStripMenuItem salirToolStripMenuItem;
+        private ToolStripMenuItem ayudaToolStripMenuItem;
+        private ToolStripMenuItem acercaDeToolStripMenuItem;
     }
 }
